@@ -13,7 +13,7 @@ Databases -> SQL Server or Firebase
 Machine Learning -> Python (Pooja), Scikit-Learn, NumPy, Pandas, Seaborn
 
 ## Our Project Ideas
-1. Clothing Recommender -> Takes items in your closet and recommends matching items
+1. **Clothing Recommender** -> Takes items in your closet and recommends matching items
     - Take a cosplay and find items of clothing that would make a more casual and accessible version of it
         - sort by price and other categories
         - (optional) find specific fabric and material for making the clothing out of, if the outfit is made by hand
@@ -27,14 +27,6 @@ Machine Learning -> Python (Pooja), Scikit-Learn, NumPy, Pandas, Seaborn
     - high fantasy
     - !! Quest Plotline generator (with images?!?!?!? and dialogue?!?!?!) (inspo from sao...)
         - generated based on a particular genre?
-4. 
-
-## Interests for project ideas
-1. music
-2. art
-3. fashion
-4. horror
-
 
 ## Current Assignments
 Alvin -> Java, Springboot
@@ -42,3 +34,29 @@ Christy -> HTML/CSS (Tailwind), SQL (Microsoft SQL Server)
 Coco -> HTML/CSS, Figma, Tailwind
 Simra -> Machine Learning (Google Colab or Jupyter Notebooks)
 Anya -> Machine Learning (Google Colab or Jupyter Notebooks)
+
+## Progress Update (10.19)
+Alvin
+- picking up java & springboot
+- have a vague grasp of how REST works
+- sing postgresql database
+
+Christy
+- Learning tailwind
+- Started project with coco
+- Will make good progress before pooja comes back!
+- Also learning sql at the same time
+
+Coco
+- Working with Christy on project to learn tailwind --> active learning!
+
+Simra
+- Covered basics of ML & understanding how everything works start to finish
+- Learned about supervised, unsupervised, learning through feedback
+- How the data is structured and how we try to predict labels
+- Diving into algorithmic linear regression
+
+Anya
+- installed & exploring jupyter notebook
+- learning python & python libraries
+- will get into learning ML basics soon too
