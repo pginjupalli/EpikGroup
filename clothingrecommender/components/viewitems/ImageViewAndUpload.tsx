@@ -24,7 +24,7 @@ export default function ImageViewAndUpload({imageLink}: ImageViewAndUpload) {
   }
   
   return (
-    <div className='w-[40%] h-[90%] m-3 border-2 border-[#B56311] relative group'>
+    <div className='m-w-md h-[90%] border-2 border-[#B56311] relative group'>
       <img className=' w-full h-full object-cover' src={imageSrc}/>
       <FiEdit
         className='text-[#B56311] absolute bottom-0 right-0 opacity-0 group-hover:opacity-100 transition cursor-pointer'
