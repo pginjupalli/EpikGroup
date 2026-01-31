@@ -27,7 +27,7 @@ export default function TagList({tags}: TagList) {
     }
 
     return (
-        <div className='flex flex-wrap justify-center text-[#B56311] w-fit'><p className='font-bold inline'>
+        <div className='flex flex-wrap items-center text-[#B56311] w-fit'><p className='font-bold inline'>
             Item Tag(s):
             </p> {list.map((tag: string) => <Tag phrase={tag} key={tag} deleteTag={deleteTag}/>)}
             {isAddingTag ? 
