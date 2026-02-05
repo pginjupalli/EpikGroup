@@ -5,15 +5,16 @@ import { FiEdit } from "react-icons/fi";
 
 interface Description {
     description: string;
+    descriptionName: string;
 }
 
-export default function Description({description}: Description) {
+export default function Description({description, descriptionName}: Description) {
   const [isEditing, setIsEditing] = useState(false);
   const [desc, setDesc] = useState(description);
 
   return (
     <div className='text-[#B56311]'>
-      <p className='font-bold inline'>Item Description: </p>
+      <p className='font-bold inline'>{descriptionName}: </p>
       {isEditing ?
         <textarea
           value={desc}

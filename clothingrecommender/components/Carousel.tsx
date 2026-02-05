@@ -3,7 +3,7 @@
 import useEmblaCarousel from "embla-carousel-react";
 import { useCallback, useEffect, useState } from "react";
 import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
-import ImageCard from "./ImageNameOnHover";
+import ImageCard from "./ImageCard";
 
 type Props = {
   images: { src: string; name: string; url?: string }[];
