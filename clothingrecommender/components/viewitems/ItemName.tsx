@@ -22,7 +22,7 @@ export default function ItemName({itemName, onItemNameChange}: ItemName) {
         {isEditing ? 
         <div className='flex items-center justify-center m-2 gap-2.5'>
             <input
-                className='text-[#B56311] font-bold text-xl outline-0'
+                className='text-[#B56311] font-bold text-3xl outline-0'
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && saveTitle()}
@@ -32,7 +32,7 @@ export default function ItemName({itemName, onItemNameChange}: ItemName) {
         </div>
         : 
         <div className='flex items-center justify-center w-fit m-2 gap-2.5 group'>
-            <h1 className='text-[#B56311] font-bold text-xl'>{title}</h1>
+            <h1 className='text-[#B56311] font-bold text-3xl'>{title}</h1>
             <FiEdit 
                 className='text-[#B56311] opacity-0 group-hover:opacity-100 transition cursor-pointer'
                 onClick={() => setIsEditing(true)}/>

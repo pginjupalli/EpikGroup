@@ -7,6 +7,8 @@ import Description from '@/components/viewitems/Description';
 import Toggle from '@/components/Toggle';
 import { useState } from 'react';
 import HeartButton from '@/components/HeartButton';
+import CarouselGroup from '@/components/CarouselGroup';
+import Divider from '@/components/Divider';
 
 export default function ViewItemPage() {
     // Test data which would have to be queried from the DB
@@ -35,28 +37,53 @@ export default function ViewItemPage() {
         }
     }
 
+    const [outfitImages, setOutfitImages] = useState([
+        {
+            src: "/profile_photo.jpg",
+            name: "Outfit 1",
+            url: "https://www.google.com"
+        },
+        {
+            src: "/profile_photo.jpg",
+            name: "Outfit 2"
+        },
+        {
+            src: "/profile_photo.jpg",
+            name: "Outfit 3"
+        },
+        {
+            src: "/profile_photo.jpg",
+            name: "Outfit 4"
+        }
+    ]);
+
 
     return (
         <div className='flex items-center justify-center p-7 h-screen'>
-            <div className='bg-[#EFEAE4] border-2 border-[#B56311] h-full w-full flex items-center flex-col p-5'>
+            <div className='bg-[#EFEAE4] border-2 border-[#B56311] h-full w-full flex items-center flex-col gap-y-5 p-5 overflow-y-scroll scrollbar-thin scrollbar-thumb-[#B56311]/80 scrollbar-track-[#E0D0B9]/80'>
                 <ItemName itemName={itemName} onItemNameChange={setItemName}/>
                 <div className='w-full p-3 flex flex-wrap gap-8 items-center justify-center'>
                     <ImageViewAndUpload imageLink={imageURL}/>
-                    <div className='w-3xl'>
-                        <TagList tags={tagList}/>
-                        <Description description={description}/>
-                        <div className='flex items-center gap-2'>
-                            <p className='font-bold inline text-[#B56311]'>Is Available: </p>
-                            <Toggle checked={isAvailable} onCheckedChange={onIsAvailableChange}/>
+                    <div className='w-3xl flex flex-col gap-y-10 items-center'>
+                        <div className='flex flex-col items-center gap-y-1'>
+                            <TagList tags={tagList}/>
+                            <Description description={description}/>
+                            <div className='flex items-center gap-2'>
+                                <p className='font-bold inline text-[#B56311]'>Is Available: </p>
+                                <Toggle checked={isAvailable} onCheckedChange={onIsAvailableChange}/>
+                            </div>
                         </div>
-                        <div className='flex items-center gap-2 flex-row flex-wrap mt-4'>
+                        <div className='flex items-center gap-4 justify-center flex-row flex-wrap mt-4'>
                             <button className='bg-[#B56311] text-[#E0D0B9] px-3 py-1 hover:bg-[#9A520F] transition-colors duration-200'>Create Outfit</button>
                             <button className='bg-[#B56311] text-[#E0D0B9] px-3 py-1 hover:bg-[#9A520F] transition-colors duration-200'>Delete Item</button>
                             <HeartButton liked={isLiked} onClick={onLikeToggle}/>
                         </div>
                     </div>
                 </div>
-                <h1 className='text-[#B56311] font-bold text-xl'>Existing Outfits</h1>
+                <Divider/>
+                <CarouselGroup images={outfitImages} groupName='Existing Outfits'/>
+                <Divider/>
+                <CarouselGroup images={outfitImages} groupName='Similar Items'/>
             </div>
         </div>
     )
