@@ -1,7 +1,6 @@
-import Image from "next/image";
-
 export default function Home() {
   return (
+<<<<<<< HEAD
     <div>
       <h1>
         Welcome to the Clothing Recommender App!
@@ -10,5 +9,8 @@ export default function Home() {
         Profile Page
       </a>
     </div>
+=======
+    <p>Home Page</p>
+>>>>>>> main
   );
 }

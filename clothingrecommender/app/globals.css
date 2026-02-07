@@ -1,7 +1,8 @@
 @import "tailwindcss";
+@plugin 'tailwind-scrollbar';
 
 :root {
-  --background: #ffffff;
+  --background: #E0D0B9;
   --foreground: #171717;
 }
 
@@ -15,7 +16,7 @@
 @media (prefers-color-scheme: dark) {
   :root {
     --background: #0a0a0a;
-    --foreground: #ededed;
+    --foreground: #E0D0B9;
   }
 }
 
@@ -23,4 +24,19 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(15px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.85s cubic-bezier(0.16, 1, 0.3, 1);
 }
