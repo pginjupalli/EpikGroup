@@ -10,10 +10,7 @@
   },
   "dependencies": {
     "@radix-ui/themes": "^3.3.0",
-<<<<<<< HEAD
-=======
     "embla-carousel-react": "^8.6.0",
->>>>>>> main
     "next": "^16.1.6",
     "react": "19.2.0",
     "react-dom": "19.2.0",
