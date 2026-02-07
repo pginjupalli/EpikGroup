@@ -21,14 +21,13 @@ export default function ProfilePage() {
           <p className="text-gray-600">@username</p>
 
           {/* Following and Followers */}
-          <div className="flex gap-6 text-gray-600">
-            <div>
+          <div className="flex gap-6 text-gray-600"> <div>
               <span className="font-semibold">123</span> Following
-            </div>
-            <div>
+        </div>
+      <div>
               <span className="ml-4 font-semibold">456</span> Followers
-            </div>
-          </div>
+      </div>
+      </div>
           
           {/* Bio */}
           <p className="text-gray-600">Bio goes here</p>
@@ -36,15 +35,21 @@ export default function ProfilePage() {
       </div>
 
       {/* Profile Picture */}
-        <div className="absolute top-32 left-10 w-40 h-40 bg-black rounded-full border-4 border-white">
+      <div className="absolute top-32 left-10 w-40 h-40 bg-black rounded-full border-4 border-white">
         
         </div>
 
         {/* Profile Background */}
 
-        {/* Profile Information */}
       </div>
-    </div>
+
+      
+      {/* Outfit Gallery WIP */}
+      <div className="w-full h-54 bg-[#EFEAE3] rounded-b-2xl pt-4"></div>
+
+      {/* Inspect element and section it off into boxes */}
+      
+    </div>    
   )
 }
 
