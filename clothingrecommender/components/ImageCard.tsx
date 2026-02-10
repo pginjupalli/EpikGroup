@@ -23,6 +23,7 @@ export default function ImageCard({
         group cursor-pointer
         bg-gray-200
         flex items-center justify-center
+        rounded-lg shadow-lg
       "
     >
       {/* Image */}
@@ -34,7 +35,7 @@ export default function ImageCard({
               object-cover
               transition duration-300
             group-hover:brightness-75
-            w-full h-50 border-2 border-[#B56311]
+            w-full h-50 rounded-lg
           "
           onError={() => setImageError(true)}
         />

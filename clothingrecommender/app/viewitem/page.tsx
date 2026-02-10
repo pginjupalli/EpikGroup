@@ -66,7 +66,7 @@ export default function ViewItemPage() {
 
   return (
     <div className="flex items-center justify-center p-7 h-screen">
-      <div className="bg-[#EFEAE4] border-2 border-[#B56311] h-full w-full flex items-center flex-col gap-y-5 p-5 overflow-y-scroll scrollbar-thin scrollbar-thumb-[#B56311]/80 scrollbar-track-[#E0D0B9]/80">
+      <div className="bg-[#EFEAE4] shadow-xl rounded-xl h-full w-full flex items-center flex-col gap-y-5 p-5 overflow-y-scroll scrollbar-thin scrollbar-thumb-[#B56311]/80 scrollbar-track-[#E0D0B9]/80">
         <ItemName itemName={itemName} onItemNameChange={setItemName} />
         <div className="w-full p-3 flex flex-wrap gap-8 items-center justify-center">
           <ImageViewAndUpload imageLink={imageURL} />
@@ -88,10 +88,10 @@ export default function ViewItemPage() {
               </div>
             </div>
             <div className="flex items-center gap-4 justify-center flex-row flex-wrap mt-4">
-              <button className="bg-[#B56311] text-[#E0D0B9] px-3 py-1 hover:bg-[#9A520F] transition-colors duration-200">
+              <button className="bg-[#B56311] text-[#E0D0B9] rounded-lg px-3 py-1 hover:bg-[#9A520F] transition-colors duration-200">
                 Create Outfit
               </button>
-              <button className="bg-[#B56311] text-[#E0D0B9] px-3 py-1 hover:bg-[#9A520F] transition-colors duration-200">
+              <button className="bg-[#B56311] text-[#E0D0B9] rounded-lg px-3 py-1 hover:bg-[#9A520F] transition-colors duration-200">
                 Delete Item
               </button>
               <HeartButton liked={isLiked} onClick={onLikeToggle} />

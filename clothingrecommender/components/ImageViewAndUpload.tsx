@@ -25,7 +25,7 @@ export default function ImageViewAndUpload({imageLink}: ImageViewAndUpload) {
   
   return (
     <div className='relative group'>
-      <img className='max-w-md max-h-72 border-2 border-[#B56311] w-full h-full object-cover' src={imageSrc}/>
+      <img className='max-w-md max-h-72 shadow rounded-lg w-full h-full object-cover' src={imageSrc}/>
       <FiEdit
         className='text-[#B56311] absolute bottom-1 right-1 opacity-0 group-hover:opacity-100 transition cursor-pointer'
         onClick={handleIconClick}/>
