@@ -5,9 +5,10 @@ import { useState, useRef } from 'react';
 
 interface ImageViewAndUpload {
     imageLink: string;
+    objectFit?: "cover" | "contain";
 }
 
-export default function ImageViewAndUpload({imageLink}: ImageViewAndUpload) {
+export default function ImageViewAndUpload({imageLink, objectFit = "cover"}: ImageViewAndUpload) {
   const [imageSrc, setImageSrc] = useState(imageLink);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -25,7 +26,7 @@ export default function ImageViewAndUpload({imageLink}: ImageViewAndUpload) {
   
   return (
     <div className='relative group'>
-      <img className='max-w-md max-h-72 shadow rounded-lg w-full h-full object-cover' src={imageSrc}/>
+      <img className='max-w-md max-h-72 shadow rounded-lg w-full h-full' style={{ objectFit }} src={imageSrc}/>
       <FiEdit
         className='text-[#B56311] absolute bottom-1 right-1 opacity-0 group-hover:opacity-100 transition cursor-pointer'
         onClick={handleIconClick}/>
