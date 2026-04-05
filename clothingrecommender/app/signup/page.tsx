@@ -1,9 +1,11 @@
 'use client'
 import React, { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { Nunito } from 'next/font/google'
 import { IoLogoAngular } from 'react-icons/io'
 import { IoEyeOutline, IoEyeOffOutline } from 'react-icons/io5'
+import { supabase } from '../../lib/supabase'
 
 const nunito = Nunito({ subsets: ['latin'] })
 
@@ -13,17 +15,46 @@ const fields = [
   { id: 'password', label: 'Password', type: 'password'},
 ]
 
-function isFieldInvalid(id: string, value: string) {
-  if (!value.trim()) return true
-  if (id === 'email') return !/^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,}$/.test(value)
-  if (id === 'username') return value.trim().length < 2
-  if (id === 'password') return value.length < 6
-  return false
+
+function getFieldError(id: string, value: string): string {
+  if (!value.trim()) return `${id.charAt(0).toUpperCase() + id.slice(1)} is required`
+  if (id === 'email' && !/^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,}$/.test(value)) return 'Enter a valid email address'
+  if (id === 'username' && value.trim().length < 2) return 'Username must be at least 2 characters'
+  if (id === 'password' && value.length < 6) return 'Password must be at least 6 characters'
+  return ''
 }
 
 export default function SignupPage() {
+  const router = useRouter()
   const [formData, setFormData] = useState<Record<string, string>>({})
   const [showPassword, setShowPassword] = useState(false)
+  const [submitted, setSubmitted] = useState(false)
+  const [loading, setLoading] = useState(false)
+  const [authError, setAuthError] = useState('')
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault()
+    setSubmitted(true)
+    const hasErrors = fields.some(({ id }) => getFieldError(id, formData[id] || '') !== '')
+    if (hasErrors) return
+
+    setLoading(true)
+    setAuthError('')
+    const { data, error } = await supabase.auth.signUp({
+      email: formData.email,
+      password: formData.password,
+      options: { data: { username: formData.username } },
+    })
+    setLoading(false)
+
+    if (error) {
+      setAuthError(error.message)
+    } else if (data.user && data.user.identities && data.user.identities.length === 0) {
+      setAuthError('An account with this email already exists. Please log in.')
+    } else {
+      router.push('/profile')
+    }
+  }
 
   return (
     <div className="flex items-center justify-center min-h-screen flex-1 bg-[#D4C4A8]">
@@ -33,16 +64,15 @@ export default function SignupPage() {
           <h1 className="text-2xl font-bold text-[#B56311]">Create a new account</h1>
         </div>
 
-        <form className="flex flex-col w-full gap-4">
+        <form className="flex flex-col w-full gap-4" onSubmit={handleSubmit}>
           {fields.map(({ id, label, type}) => {
             const value = formData[id] || ''
-            const showError = isFieldInvalid(id, value)
+            const error = submitted ? getFieldError(id, value) : ''
             const isPassword = id === 'password'
             return (
               <div key={id} className="flex flex-col gap-1">
                 <label htmlFor={id} className="text-sm font-bold text-[#171717]">
                   {label}
-                  {showError && <span className="text-red-400 ml-1">*</span>}
                 </label>
                 <div className="relative">
                   <input
@@ -50,7 +80,7 @@ export default function SignupPage() {
                     type={isPassword && showPassword ? 'text' : type}
                     value={value}
                     onChange={(e) => setFormData({ ...formData, [id]: e.target.value })}
-                    className="w-full px-3 py-2 rounded-lg border border-[#ccc] bg-white text-[#171717] focus:outline-none focus:border-[#B56311]"
+                    className={`w-full px-3 py-2 rounded-lg border bg-white text-[#171717] focus:outline-none focus:border-[#B56311] ${error ? 'border-red-400' : 'border-[#ccc]'}`}
                   />
                   {isPassword && (
                     <button
@@ -62,12 +92,15 @@ export default function SignupPage() {
                     </button>
                   )}
                 </div>
+                {error && <span className="text-red-400 text-xs font-medium">{error}</span>}
               </div>
             )
           })}
 
-          <button type="submit" className="w-full py-2 mt-2 rounded-lg bg-[#B56311] text-white font-semibold hover:bg-[#934f0e] transition duration-200">
-            Create Account
+          {authError && <span className="text-red-400 text-xs font-medium">{authError}</span>}
+
+          <button type="submit" disabled={loading} className="w-full py-2 mt-2 rounded-lg bg-[#B56311] text-white font-semibold hover:bg-[#934f0e] transition duration-200 disabled:opacity-60">
+            {loading ? 'Creating Account...' : 'Create Account'}
           </button>
         </form>
 
