@@ -1,8 +1,13 @@
 const supabase = require("./supabaseClient");
 const express = require('express');
+const cors = require('cors');
 
 const app = express();
 const PORT = 8000;
+
+app.use(cors({
+  origin: 'http://localhost:3000'
+}));
 
 
 app.get('/', async (req, res)=>{
@@ -14,14 +19,10 @@ app.get('/', async (req, res)=>{
 app.get('/test', async (req, res) => {
     res.status(200);
     const data = await supabase.from('Items').select('*');
-    const { data: publicUrlData } = supabase
-  .storage
-  .from('item_images')
-  .getPublicUrl("white_hoodie.jpg");
+    const { data: publicUrlData } = supabase.storage.from('item_images').getPublicUrl("white_hoodie.jpg");
+    const publicUrl = publicUrlData.publicUrl;
 
-const publicUrl = publicUrlData.publicUrl;
-
-    res.send(`<img src="${publicUrl}" />`);
+    res.json(publicUrl);
 })
 
 
