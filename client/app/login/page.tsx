@@ -1,9 +1,11 @@
 'use client'
-import React, { useState } from 'react'
+import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { Nunito } from 'next/font/google'
 import { IoLogoAngular } from 'react-icons/io'
 import { IoEyeOutline, IoEyeOffOutline } from 'react-icons/io5'
+import { supabase } from '../../lib/supabase'
 
 const nunito = Nunito({ subsets: ['latin'] })
 
@@ -20,8 +22,30 @@ function isFieldInvalid(id: string, value: string) {
 }
 
 export default function LoginPage() {
+  const router = useRouter()
   const [formData, setFormData] = useState<Record<string, string>>({})
   const [showPassword, setShowPassword] = useState(false)
+  const [loading, setLoading] = useState(false)
+  const [authError, setAuthError] = useState('')
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault()
+    if (fields.some(({ id }) => isFieldInvalid(id, formData[id] || ''))) return
+
+    setLoading(true)
+    setAuthError('')
+    const { error } = await supabase.auth.signInWithPassword({
+      email: formData.email,
+      password: formData.password,
+    })
+    setLoading(false)
+
+    if (error) {
+      setAuthError(error.message)
+    } else {
+      router.push('/profile')
+    }
+  }
 
   return (
     <div className="flex items-center justify-center min-h-screen flex-1 bg-[#D4C4A8]">
@@ -31,7 +55,7 @@ export default function LoginPage() {
           <h1 className="text-2xl font-bold text-[#B56311]">Welcome Back!</h1>
         </div>
 
-        <form className="flex flex-col w-full gap-4">
+        <form className="flex flex-col w-full gap-4" onSubmit={handleSubmit}>
           {fields.map(({ id, label, type}) => {
             const value = formData[id] || ''
             const showError = isFieldInvalid(id, value)
@@ -68,8 +92,10 @@ export default function LoginPage() {
             Forgot your password?
           </Link>
 
-          <button type="submit" className="w-full py-2 rounded-lg bg-[#B56311] text-white font-semibold hover:bg-[#934f0e] transition duration-200">
-            Log In
+          {authError && <span className="text-red-400 text-xs font-medium">{authError}</span>}
+
+          <button type="submit" disabled={loading} className="w-full py-2 rounded-lg bg-[#B56311] text-white font-semibold hover:bg-[#934f0e] transition duration-200 disabled:opacity-60">
+            {loading ? 'Logging In...' : 'Log In'}
           </button>
         </form>
 
