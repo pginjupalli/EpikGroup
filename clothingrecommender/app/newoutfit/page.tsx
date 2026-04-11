@@ -9,9 +9,9 @@ interface Item {
 }
 
 interface OutfitDetails {
-  name: string           // required — outfit must have a name to be saved
+  name: string           
   collection: string
-  itemIds: string[]      // required — at least one item must be selected
+  itemIds: string[]      
   popularity: number
   isAvailable: boolean
   description: string
@@ -89,12 +89,12 @@ function ItemPickerModal({
   })
 
   return (
-    // Backdrop — clicking it closes the modal
+    // Backdrop: clicking it closes the modal
     <div
       className="fixed inset-0 bg-black/50 flex items-center justify-center z-[60] p-4"
       onClick={onClose}
     >
-      {/* Modal card — stopPropagation so clicking inside doesn't close it */}
+      {/* Modal card: stopPropagation so clicking inside doesn't close it */}
       <div
         className="bg-[#EFEAE3] rounded-2xl shadow-2xl w-full max-w-lg flex flex-col"
         style={{ maxHeight: '80vh' }}
@@ -139,7 +139,7 @@ function ItemPickerModal({
           </div>
         </div>
 
-        {/* Scrollable item list — this is the main scrollable area */}
+        {/* Scrollable item list; this is the main scrollable area */}
         <div className="overflow-y-auto flex-1 p-4">
           {filtered.length === 0 ? (
             <p className="text-center text-gray-400 text-sm py-8">No items match your search</p>
@@ -186,7 +186,7 @@ function ItemPickerModal({
           )}
         </div>
 
-        {/* Footer — Done button closes the modal and returns to the form */}
+        {/* Footer: Done button closes the modal and returns to the form */}
         <div className="p-4 border-t border-[#C4B5A0]">
           <button
             onClick={onClose}
@@ -320,10 +320,10 @@ function OutfitForm({
             )}
           </div>
 
-          {/* ── RIGHT: fields ── */}
+          {/* RIGHT: fields */}
           <div className="flex-1 flex flex-col gap-4">
 
-            {/* Outfit Name — required */}
+            {/* Required Outfit Name */}
             <div>
               <label className="text-sm font-semibold text-[#36475B]">
                 Outfit Name <span className="text-red-400">*</span>
@@ -343,7 +343,7 @@ function OutfitForm({
                               errors.name ? 'border-red-400' : 'border-[#C4B5A0]'
                             }`}
               />
-              {/* Error hint — only visible when name is missing and Save was attempted */}
+              {/* Error: only visible when name is missing and Save was attempted */}
               {errors.name && (
                 <p className="text-xs text-red-400 mt-1">Outfit name is required</p>
               )}
@@ -362,7 +362,7 @@ function OutfitForm({
               />
             </div>
 
-            {/* Items — button opens the ItemPickerModal — required */}
+            {/* Required Items: button opens the ItemPickerModal */}
             <div>
               <label className="text-sm font-semibold text-[#36475B]">
                 Items <span className="text-red-400">*</span>
@@ -387,7 +387,7 @@ function OutfitForm({
                 {/* Arrow icon */}
                 <span className="text-gray-400 text-xs">▼</span>
               </button>
-              {/* Error hint — only visible when no items selected and Save was attempted */}
+              {/* Error: only visible when no items selected and Save was attempted */}
               {errors.itemIds && (
                 <p className="text-xs text-red-400 mt-1">At least one item is required</p>
               )}
@@ -472,9 +472,8 @@ function OutfitForm({
         </div>
 
         {/*
-          Footer — three buttons:
+          Footer: three buttons
           Cancel | Delete (edit only) | Save
-          Delete is red and only shown in edit mode.
         */}
         <div className="flex items-center justify-between px-6 pb-6">
 
@@ -568,9 +567,7 @@ function OutfitCard({
       </div>
 
       {/*
-        "..." button — top-right corner, visible on hover.
-        Clicking it opens the edit form for this outfit.
-        stopPropagation prevents the overlay from interfering.
+        "..." button 
       */}
       <button
         onClick={(e) => {
@@ -625,7 +622,7 @@ export default function NewOutfitPage() {
       {/* Page header */}
       <h1 className="text-2xl font-bold text-[#36475B] mb-6">My Outfits</h1>
 
-      {/* Outfit panel — matches the profile page tab content style */}
+      {/* Outfit panel: matches the profile page tab content style */}
       <div className="w-full min-h-[calc(100vh-10rem)] bg-[#EFEAE3] rounded-2xl p-6">
 
       {/* Outfit grid */}
@@ -639,7 +636,7 @@ export default function NewOutfitPage() {
           />
         ))}
 
-        {/* + box — opens add mode */}
+        {/* + box:  opens add mode */}
         <button
           onClick={() => setFormMode('new')}
           className="aspect-square rounded-xl border-2 border-dashed border-[#B0A090]
@@ -662,7 +659,7 @@ export default function NewOutfitPage() {
         />
       )}
 
-      {/* Edit mode — pre-filled form, delete button shown */}
+      {/* Edit mode: pre-filled form, delete button shown */}
       {typeof formMode === 'number' && outfitBeingEdited && (
         <OutfitForm
           availableItems={availableItems}
