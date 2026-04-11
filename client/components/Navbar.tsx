@@ -1,5 +1,5 @@
 'use client';
-import React from 'react'
+import React, { useState } from 'react'
 import profile_png from "../public/profile_photo.jpg"
 import NavbarLink from './NavbarLink'
 import NavbarProfileLink from './NavbarProfileLink'
@@ -10,22 +10,43 @@ import { FaRegCalendarAlt } from "react-icons/fa";
 import { CiCircleInfo } from "react-icons/ci";
 import { IoMdSettings } from "react-icons/io";
 import { IoLogoAngular } from "react-icons/io";
+//add for navbartoggle
+import { RxHamburgerMenu } from 'react-icons/rx';
 import Link from 'next/link';
 
 export default function Navbar() {
+  //see if nav bar is open or not 
+  const[isOpen, setIsOpen] = useState(true);
+
   return (
-    <nav className='w-[15em] h-screen bg-[#B56311] p-4 flex flex-col justify-between'>
+    //previous uncollaspible: <nav className='w-[15em] h-screen bg-[#B56311] p-4 flex flex-col justify-between'>
+    //for thin long rectangle: 
+        //following for small square at corner:
+    //<nav className={`${isOpen ? 'w-[15em] h-screen' : 'w-[4em] h-[4em]'} bg-[#B56311] p-4 flex flex-col justify-between transition-all duration-300`}>
+
+    <nav className={`${isOpen ? 'w-[15em]' : 'w-[4em]'} h-screen bg-[#B56311] p-4 flex flex-col justify-between transition-all duration-300`}>
+
         <div>
-            <Link href = "/"><IoLogoAngular size = {50} color='#FFBC37' className='ml-1 mb-2'/></Link>
-            <NavbarProfileLink profileImage={profile_png} username="Username" link="/profile"></NavbarProfileLink>
-            <NavbarLink icon={CiSquarePlus} link="/newitem" text = "New Item"/>
-            <NavbarLink icon={MdBrush} link="/newoutfit" text = "New Outfit"/>
-            <NavbarLink icon={MdOutlineDoorSliding} link="/viewcloset" text = "View Closet"/>
-            <NavbarLink icon={FaRegCalendarAlt} link="/calendar" text = "Calendar"/>
-            <NavbarLink icon={CiCircleInfo} link="/aboutus" text = "About Us"/>
+            
+            <button onClick={() => setIsOpen(!isOpen)} className='mb-2'>
+              <RxHamburgerMenu size={30} color='#FFBC37'/>
+            </button>
+
+            
+            { isOpen && (
+              <>
+                <Link href = "/"><IoLogoAngular size = {50} color='#FFBC37' className='ml-1 mb-2'/></Link>
+                <NavbarProfileLink profileImage={profile_png} username="Username" link="/profile"></NavbarProfileLink>
+                <NavbarLink icon={CiSquarePlus} link="/newitem" text = "New Item"/>
+                <NavbarLink icon={MdBrush} link="/newoutfit" text = "New Outfit"/>
+                <NavbarLink icon={MdOutlineDoorSliding} link="/viewcloset" text = "View Closet"/>
+                <NavbarLink icon={FaRegCalendarAlt} link="/calendar" text = "Calendar"/>
+                <NavbarLink icon={CiCircleInfo} link="/aboutus" text = "About Us"/>
+              </>
+            )} 
         </div>
-        <div>
-            <NavbarLink icon={IoMdSettings} link="/"/>
+        <div> 
+            {isOpen && <NavbarLink icon={IoMdSettings} link="/"/>}
         </div>
     </nav>
   )
