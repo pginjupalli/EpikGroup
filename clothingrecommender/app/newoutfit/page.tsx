@@ -206,19 +206,21 @@ function ItemPickerModal({
 function OutfitForm({
   availableItems,
   initialOutfit,
+  initialDetails,
   onSave,
   onDelete,
   onCancel,
 }: {
   availableItems: Item[]
   initialOutfit?: Outfit
+  initialDetails?: OutfitDetails
   onSave: (imageUrl: string, details: OutfitDetails) => void
   onDelete?: () => void   // only provided in edit mode
   onCancel: () => void
 }) {
   const [imageUrl, setImageUrl] = useState(initialOutfit?.imageUrl ?? '')
   const [details, setDetails] = useState<OutfitDetails>(
-    initialOutfit?.details ?? {
+    initialOutfit?.details ?? initialDetails ?? {
       name: '',
       collection: '',
       itemIds: [],
@@ -590,17 +592,66 @@ function OutfitCard({
   )
 }
 
+const OUTFIT_NAMES = [
+  'Lucky Pick', 'Random Fit', 'Dice Roll', 'Surprise Look',
+  'Mystery Outfit', 'Wild Card', 'Fortune Fit', 'Spontaneous Style',
+]
+
+function DiceIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect x="2" y="2" width="20" height="20" rx="4" stroke="currentColor" strokeWidth="2" fill="none"/>
+      <circle cx="7"  cy="7"  r="1.5" fill="currentColor"/>
+      <circle cx="17" cy="7"  r="1.5" fill="currentColor"/>
+      <circle cx="12" cy="12" r="1.5" fill="currentColor"/>
+      <circle cx="7"  cy="17" r="1.5" fill="currentColor"/>
+      <circle cx="17" cy="17" r="1.5" fill="currentColor"/>
+    </svg>
+  )
+}
+
 export default function NewOutfitPage() {
   const [outfits, setOutfits] = useState<Outfit[]>([])
 
   // null = closed | 'new' = add mode | number = edit mode (outfit id)
   const [formMode, setFormMode] = useState<null | 'new' | number>(null)
+  const [randomDraft, setRandomDraft] = useState<OutfitDetails | undefined>(undefined)
+  const [isSpinning, setIsSpinning] = useState(false)
 
   const [availableItems] = useState<Item[]>(PLACEHOLDER_ITEMS)
+
+  const handleDiceClick = () => {
+    if (isSpinning) return
+    setIsSpinning(true)
+    setTimeout(() => setIsSpinning(false), 600)
+
+    // Pick one random item per type
+    const byType: Record<string, Item[]> = {}
+    availableItems.forEach((item) => {
+      if (!byType[item.type]) byType[item.type] = []
+      byType[item.type].push(item)
+    })
+    const pickedIds = Object.values(byType).map(
+      (group) => group[Math.floor(Math.random() * group.length)].id
+    )
+
+    const draft: OutfitDetails = {
+      name: OUTFIT_NAMES[Math.floor(Math.random() * OUTFIT_NAMES.length)],
+      collection: '',
+      itemIds: pickedIds,
+      popularity: 0,
+      isAvailable: true,
+      description: '',
+      occasion: OCCASION_OPTIONS[Math.floor(Math.random() * OCCASION_OPTIONS.length)],
+    }
+    setRandomDraft(draft)
+    setFormMode('new')
+  }
 
   const handleSaveNew = (imageUrl: string, details: OutfitDetails) => {
     setOutfits((prev) => [...prev, { id: Date.now(), imageUrl, details }])
     setFormMode(null)
+    setRandomDraft(undefined)
   }
 
   const handleSaveEdit = (id: number, imageUrl: string, details: OutfitDetails) => {
@@ -623,7 +674,24 @@ export default function NewOutfitPage() {
     <div className="min-h-screen bg-[#D4C4B0] p-8">
 
       {/* Page header */}
-      <h1 className="text-2xl font-bold text-[#36475B] mb-6">My Outfits</h1>
+      <div className="flex items-center justify-between mb-6">
+        <h1 className="text-2xl font-bold text-[#36475B]">My Outfits</h1>
+        <button
+          onClick={handleDiceClick}
+          title="Generate random outfit"
+          className="w-11 h-11 rounded-xl bg-[#EFEAE3] hover:bg-[#E0D8CE] text-[#36475B]
+                     flex items-center justify-center shadow-sm transition-colors"
+          style={{ animation: isSpinning ? 'spin-once 0.6s ease' : 'none' }}
+        >
+          <DiceIcon className="w-6 h-6" />
+        </button>
+      </div>
+      <style>{`
+        @keyframes spin-once {
+          from { transform: rotate(0deg); }
+          to   { transform: rotate(360deg); }
+        }
+      `}</style>
 
       {/* Outfit panel — matches the profile page tab content style */}
       <div className="w-full min-h-[calc(100vh-10rem)] bg-[#EFEAE3] rounded-2xl p-6">
@@ -657,8 +725,9 @@ export default function NewOutfitPage() {
       {formMode === 'new' && (
         <OutfitForm
           availableItems={availableItems}
+          initialDetails={randomDraft}
           onSave={handleSaveNew}
-          onCancel={() => setFormMode(null)}
+          onCancel={() => { setFormMode(null); setRandomDraft(undefined) }}
         />
       )}
 
