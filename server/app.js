@@ -8,6 +8,7 @@ const PORT = 8000;
 app.use(cors({
   origin: 'http://localhost:3000'
 }));
+app.use(express.json());
 
 
 app.get('/', async (req, res)=>{
@@ -58,6 +59,41 @@ app.get('/closet', async (req, res) => {
     res.status(200).json({item: formattedItems, outfit: formattedOutfits});
 });
 
+app.patch('/api/item/updateitem', async (req, res) => {
+    try {
+        const { id, ...updates } = req.body;
+
+        const { data, error } = await supabase
+            .from('Items')
+            .update(updates)
+            .eq('id', id)
+            .select();
+
+        if (error) throw error;
+
+        res.status(200).json(data);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.patch('/api/outfit/updateoutfit', async (req, res) => {
+    try {
+        const { id, ...updates } = req.body;
+
+        const { data, error } = await supabase
+            .from('Outfits')
+            .update(updates)
+            .eq('id', id)
+            .select();
+
+        if (error) throw error;
+
+        res.status(200).json(data);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
 
 app.listen(PORT, (error) =>{
     if(!error)
