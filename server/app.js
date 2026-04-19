@@ -25,6 +25,39 @@ app.get('/test', async (req, res) => {
     res.json(publicUrl);
 })
 
+// Gets all items and outfits to display to the closet
+app.get('/closet', async (req, res) => {
+    const items = await supabase.from('Items').select('*');
+    const outfits = await supabase.from('Outfits').select('*');
+
+    const formattedItems = items.data.map(item => {
+        if (item.image_url != null) {
+            const { data: publicUrlData } = supabase.storage.from('item_images').getPublicUrl(item.image_url);
+            publicUrl = publicUrlData.publicUrl;
+        } else {
+            publicUrl = null;
+        }
+        
+        return {
+            id: item.id,
+            name: item.name,
+            description: item.description,
+            image: publicUrl,
+        }
+    });
+
+    const formattedOutfits = outfits.data.map(outfit => {
+        return {
+            id: outfit.id,
+            name: outfit.name,
+            description: outfit.description,
+            image: null,
+        }
+    });
+
+    res.status(200).json({item: formattedItems, outfit: formattedOutfits});
+});
+
 
 app.listen(PORT, (error) =>{
     if(!error)

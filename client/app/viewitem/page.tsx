@@ -10,8 +10,11 @@ import HeartButton from "@/components/FavoriteButton";
 import CarouselGroup from "@/components/CarouselGroup";
 import Divider from "@/components/Divider";
 
-export default function ViewItemPage() {
+export default function ViewItemPage({ searchParams }: any) {
   // Test data which would have to be queried from the DB
+  const params = React.use(searchParams);
+  const id = (params as any).id;
+  
   const [itemName, setItemName] = useState("Leopard Print Sweater");
   const [imageURL, setImageURL] = useState("/profile_photo.jpg");
   const [tagList, setTagList] = useState([
@@ -63,6 +66,8 @@ export default function ViewItemPage() {
       name: "Outfit 4",
     },
   ]);
+
+  console.log(id);
 
   return (
     <div className="flex items-center justify-center p-7 h-screen">
