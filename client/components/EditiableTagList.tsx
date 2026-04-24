@@ -6,9 +6,10 @@ import Tag from "./Tag";
 interface TagList {
   tags: Array<string>;
   listName: string;
+  onTagsChange?: (tags: string[]) => void;
 }
 
-export default function TagList({ tags, listName }: TagList) {
+export default function TagList({ tags, listName, onTagsChange }: TagList) {
   const [list, setList] = useState(tags);
   const [isAddingTag, setIsAddingTag] = useState(false);
   const [newTagInput, setNewTagInput] = useState("");
@@ -16,19 +17,22 @@ export default function TagList({ tags, listName }: TagList) {
   function deleteTag(tagToDelete: string) {
     const newList = list.filter((tag) => tag !== tagToDelete);
     setList(newList);
+    onTagsChange?.(newList);
   }
 
   function addTag(newTag: string) {
     if (newTag.trim() === "") return;
     if (list.some((tag) => tag.toLowerCase() === newTag.toLowerCase())) return;
 
-    setList([...list, newTag]);
+    const newList = [...list, newTag];
+    setList(newList);
+    onTagsChange?.(newList);
     setNewTagInput("");
     setIsAddingTag(false);
   }
 
   return (
-    <div className="flex flex-wrap items-center text-[#B56311] w-fit">
+    <div className="flex flex-wrap items-center text-[#B56311] w-full">
       <p className="font-bold inline">{listName}:</p>{" "}
       {list.map((tag: string) => (
         <Tag phrase={tag} key={tag} deleteTag={deleteTag} />

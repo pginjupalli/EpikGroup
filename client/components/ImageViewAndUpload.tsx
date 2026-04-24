@@ -6,9 +6,10 @@ import { useState, useRef } from 'react';
 interface ImageViewAndUpload {
     imageLink: string;
     objectFit?: "cover" | "contain";
+    onFileChange?: (file: File) => void;
 }
 
-export default function ImageViewAndUpload({imageLink, objectFit = "cover"}: ImageViewAndUpload) {
+export default function ImageViewAndUpload({imageLink, objectFit = "cover", onFileChange}: ImageViewAndUpload) {
   const [imageSrc, setImageSrc] = useState(imageLink);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -22,6 +23,7 @@ export default function ImageViewAndUpload({imageLink, objectFit = "cover"}: Ima
 
     const newUrl = URL.createObjectURL(file); // Create a temporary local URL
     setImageSrc(newUrl);
+    onFileChange?.(file);
   }
   
   return (
