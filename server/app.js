@@ -59,6 +59,7 @@ app.get('/closet', async (req, res) => {
     res.status(200).json({item: formattedItems, outfit: formattedOutfits});
 });
 
+
 app.patch('/api/item/updateitem', async (req, res) => {
     try {
         const { id, ...updates } = req.body;

@@ -7,18 +7,18 @@ import { createClient } from '@/lib/supabase/server'
 export async function login(email: string, password: string) {
   const supabase = await createClient()
 
-  const { error } = await supabase.auth.signInWithPassword({ email, password })
+  const { data, error } = await supabase.auth.signInWithPassword({ email, password })
 
   if (error) return { error: error.message }
 
   revalidatePath('/', 'layout')
-  redirect('/profile')
+  redirect(`/profile?id=${data.user.id}`)
 }
 
 export async function signup(email: string, password: string, username: string) {
   const supabase = await createClient()
 
-  const { error } = await supabase.auth.signUp({
+  const { data, error } = await supabase.auth.signUp({
     email,
     password,
     options: { data: { username } },
@@ -27,7 +27,7 @@ export async function signup(email: string, password: string, username: string) 
   if (error) return { error: error.message }
 
   revalidatePath('/', 'layout')
-  redirect('/profile')
+  redirect(`/profile?id=${data.user?.id}`)
 }
 
 export async function logout() {
