@@ -1,11 +1,10 @@
 'use client'
 import React, { useState } from 'react'
-import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { Nunito } from 'next/font/google'
 import { IoLogoAngular } from 'react-icons/io'
 import { IoEyeOutline, IoEyeOffOutline } from 'react-icons/io5'
-import { supabase } from '../../lib/supabase'
+import { signup } from '@/app/auth/actions'
 
 const nunito = Nunito({ subsets: ['latin'] })
 
@@ -25,7 +24,6 @@ function getFieldError(id: string, value: string): string {
 }
 
 export default function SignupPage() {
-  const router = useRouter()
   const [formData, setFormData] = useState<Record<string, string>>({})
   const [showPassword, setShowPassword] = useState(false)
   const [submitted, setSubmitted] = useState(false)
@@ -40,19 +38,10 @@ export default function SignupPage() {
 
     setLoading(true)
     setAuthError('')
-    const { data, error } = await supabase.auth.signUp({
-      email: formData.email,
-      password: formData.password,
-      options: { data: { username: formData.username } },
-    })
-    setLoading(false)
-
-    if (error) {
-      setAuthError(error.message)
-    } else if (data.user && data.user.identities && data.user.identities.length === 0) {
-      setAuthError('An account with this email already exists. Please log in.')
-    } else {
-      router.push('/profile')
+    const result = await signup(formData.email, formData.password, formData.username)
+    if (result?.error) {
+      setAuthError(result.error)
+      setLoading(false)
     }
   }
 

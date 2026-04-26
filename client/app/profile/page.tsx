@@ -50,12 +50,14 @@ function EntryGrid({ list, onAdd }: { list: Entry[]; onAdd: () => void }) {
   )
 }
 
-export default function ProfilePage() {
+export default function ProfilePage({ searchParams }: any) {
   const [activeTab, setActiveTab] = useState('outfits')
   const [folders, setFolders] = useState<Folder[]>([])
   const [outfits, setOutfits] = useState<Entry[]>([])
   const [items, setItems] = useState<Entry[]>([])
   const [collections, setCollections] = useState<Entry[]>([])
+  const params = React.use(searchParams);
+  const id = (params as any).id;
 
   // Profile data state
   const [profile, setProfile] = useState<ProfileData>({
