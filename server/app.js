@@ -59,6 +59,23 @@ app.get('/closet', async (req, res) => {
     res.status(200).json({item: formattedItems, outfit: formattedOutfits});
 });
 
+app.post('/api/item/additem', async (req, res) => {
+    try {
+        const { name, color, brand, type, is_available, price, age, popularity, tags, material, occasion, image_url } = req.body;
+
+        const { data, error } = await supabase
+            .from('Items')
+            .insert([{ name, color, brand, type, isAvailable: is_available, price, age, popularity, tags, material, occasion, image_url }])
+            .select();
+
+        if (error) throw error;
+
+        res.status(201).json(data[0]);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
 app.patch('/api/item/updateitem', async (req, res) => {
     try {
         const { id, ...updates } = req.body;
