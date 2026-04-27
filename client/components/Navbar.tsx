@@ -18,7 +18,10 @@ export default function Navbar() {
   const [isOpen, setIsOpen] = useState(true);
   const [profileImage, setProfileImage] = useState<any>(default_profile);
   const [username, setUsername] = useState("Username");
-
+    //previous uncollaspible: <nav className='w-[15em] h-screen bg-[#B56311] p-4 flex flex-col justify-between'>
+    //for thin long rectangle: 
+    //following for small square at corner:
+    //<nav className={`${isOpen ? 'w-[15em] h-screen' : 'w-[4em] h-[4em]'} bg-[#B56311] p-4 flex flex-col justify-between transition-all duration-300`}>
   useEffect(() => {
     const supabase = createClient();
 
