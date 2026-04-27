@@ -21,7 +21,7 @@ export default function Navbar() {
   return (
     //previous uncollaspible: <nav className='w-[15em] h-screen bg-[#B56311] p-4 flex flex-col justify-between'>
     //for thin long rectangle: 
-        //following for small square at corner:
+    //following for small square at corner:
     //<nav className={`${isOpen ? 'w-[15em] h-screen' : 'w-[4em] h-[4em]'} bg-[#B56311] p-4 flex flex-col justify-between transition-all duration-300`}>
 
     <nav className={`${isOpen ? 'w-[15em]' : 'w-[4em]'} h-screen bg-[#B56311] p-4 flex flex-col justify-between transition-all duration-300`}>
