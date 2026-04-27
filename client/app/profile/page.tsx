@@ -1,6 +1,8 @@
 "use client"
 import React, { useState, useRef, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
+import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 
 interface Entry {
   id: number
@@ -20,23 +22,37 @@ interface ProfileData {
   backgroundImage: string
 }
 
-function EntryGrid({ list, onAdd }: { list: Entry[]; onAdd: () => void }) {
+function EntryGrid({
+  list,
+  onAdd,
+  linkBuilder,
+}: {
+  list: Entry[]
+  onAdd: () => void
+  linkBuilder?: (entry: Entry) => string
+}) {
   return (
     <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3">
-      {list.map((entry) => (
-        <div
-          key={entry.id}
-          className="aspect-square rounded-xl overflow-hidden bg-gray-200 shadow-sm"
-        >
-          {entry.imageUrl && (
-            <img
-              src={entry.imageUrl}
-              alt="entry"
-              className="w-full h-full object-cover"
-            />
-          )}
-        </div>
-      ))}
+      {list.map((entry) => {
+        const card = (
+          <div className="aspect-square rounded-xl overflow-hidden bg-gray-200 shadow-sm">
+            {entry.imageUrl && (
+              <img
+                src={entry.imageUrl}
+                alt="entry"
+                className="w-full h-full object-cover"
+              />
+            )}
+          </div>
+        )
+        return linkBuilder ? (
+          <Link key={entry.id} href={linkBuilder(entry)}>
+            {card}
+          </Link>
+        ) : (
+          <div key={entry.id}>{card}</div>
+        )
+      })}
       <button
         onClick={onAdd}
         className="aspect-square rounded-xl border-2 border-dashed border-[#B0A090]
@@ -52,6 +68,7 @@ function EntryGrid({ list, onAdd }: { list: Entry[]; onAdd: () => void }) {
 }
 
 export default function ProfilePage({ searchParams }: any) {
+  const router = useRouter()
   const [activeTab, setActiveTab] = useState('outfits')
   const [folders, setFolders] = useState<Folder[]>([])
   const [outfits, setOutfits] = useState<Entry[]>([])
@@ -59,6 +76,16 @@ export default function ProfilePage({ searchParams }: any) {
   const [collections, setCollections] = useState<Entry[]>([])
   const params = React.use(searchParams);
   const id = (params as any).id;
+
+  useEffect(() => {
+    fetch('http://localhost:8000/closet')
+      .then((r) => r.json())
+      .then(({ item, outfit }) => {
+        setItems(item.map((i: any) => ({ id: Number(i.id), imageUrl: i.image ?? '' })))
+        setOutfits(outfit.map((o: any) => ({ id: Number(o.id), imageUrl: o.image ?? '' })))
+      })
+      .catch(console.error)
+  }, [])
 
   // Profile data state
   const [profile, setProfile] = useState<ProfileData>({
@@ -163,8 +190,8 @@ export default function ProfilePage({ searchParams }: any) {
     e.target.value = ''
   }
 
-  const handleAddOutfit     = () => openFilePicker((imageUrl) => setOutfits((prev)      => [...prev, { id: Date.now(), imageUrl }]))
-  const handleAddItem       = () => openFilePicker((imageUrl) => setItems((prev)        => [...prev, { id: Date.now(), imageUrl }]))
+  const handleAddOutfit     = () => router.push('/newoutfit')
+  const handleAddItem       = () => router.push('/newitem')
   const handleAddCollection = () => openFilePicker((imageUrl) => setCollections((prev)  => [...prev, { id: Date.now(), imageUrl }]))
 
   const handleAddToFolder = (folderName: string) =>
@@ -259,10 +286,10 @@ export default function ProfilePage({ searchParams }: any) {
             {/* Following and Followers */}
             <div className="flex gap-6 text-gray-600">
               <div>
-                <span className="font-semibold">123</span> Following
+                <span className="font-semibold">0</span> Following
               </div>
               <div>
-                <span className="ml-4 font-semibold">456</span> Followers
+                <span className="ml-4 font-semibold">0</span> Followers
               </div>
             </div>
           </div>
@@ -346,7 +373,11 @@ export default function ProfilePage({ searchParams }: any) {
           {activeTab === 'outfits' && (
             <div>
               <h3 className="text-xl font-bold mb-4">My Outfits</h3>
-              <EntryGrid list={outfits} onAdd={handleAddOutfit} />
+              <EntryGrid
+                list={outfits}
+                onAdd={handleAddOutfit}
+                linkBuilder={(entry) => `/viewoutfit/${entry.id}`}
+              />
             </div>
           )}
 

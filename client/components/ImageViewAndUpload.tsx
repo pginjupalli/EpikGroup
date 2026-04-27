@@ -31,7 +31,7 @@ export default function ImageViewAndUpload({imageLink, objectFit = "cover", onFi
   
   return (
     <div
-      className='relative group cursor-pointer w-72 h-72 shadow rounded-lg overflow-hidden'
+      className='relative group cursor-pointer w-full max-w-md aspect-square mx-auto shadow rounded-lg overflow-hidden'
       onClick={!imageSrc ? handleIconClick : undefined}
     >
       {imageSrc ? (

@@ -48,11 +48,16 @@ app.get('/closet', async (req, res) => {
     });
 
     const formattedOutfits = outfits.data.map(outfit => {
+        let outfitImage = null;
+        if (outfit.image_name) {
+            const { data: publicUrlData } = supabase.storage.from('outfit_images').getPublicUrl(outfit.image_name);
+            outfitImage = publicUrlData.publicUrl;
+        }
         return {
             id: outfit.id,
             name: outfit.name,
             description: outfit.description,
-            image: null,
+            image: outfitImage,
         }
     });
 
