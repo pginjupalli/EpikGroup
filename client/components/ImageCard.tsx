@@ -26,8 +26,8 @@ export default function ImageCard({
         rounded-lg shadow-lg
       "
     >
-      {/* Image */}
-      {!imageError && (
+      {/* Image — only render when src is present */}
+      {src && !imageError && (
           <img
             src={src}
             alt={name}
@@ -41,14 +41,19 @@ export default function ImageCard({
         />
       )}
 
+      {/* Placeholder so the card keeps its size when there's no image */}
+      {(!src || imageError) && <div className="w-50 h-50 rounded-lg" />}
+
       {/* Overlay text (hover or fallback) */}
       <div
         className={`
           absolute inset-0
           flex items-center justify-center
-          text-[#B56311] font-bold text-center text-3xl 
+          font-bold text-center text-3xl
           transition-opacity duration-300
-          ${imageError ? "opacity-100 text-gray-700" : "opacity-0 group-hover:opacity-100"}
+          ${(!src || imageError)
+            ? "opacity-100 text-gray-700"
+            : "opacity-0 group-hover:opacity-100 text-white"}
         `}
       >
         {name}

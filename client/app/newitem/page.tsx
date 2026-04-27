@@ -2,6 +2,7 @@
 import React, { useState } from "react";
 import ItemName from "@/components/EditableTitle";
 import ImageViewAndUpload from "@/components/ImageViewAndUpload";
+import { supabase } from "@/lib/supabase";
 import TagList from "@/components/EditiableTagList";
 import Toggle from "@/components/Toggle";
 
@@ -64,18 +65,55 @@ export default function NewItemPage() {
   const [price, setPrice] = useState("");
   const [age, setAge] = useState("");
   const [popularity, setPopularity] = useState(0);
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [tags, setTags] = useState<string[]>([]);
+  const [material, setMaterial] = useState("");
+  const [occasion, setOccasion] = useState("");
 
-  function handleSave() {
-    console.log("Saving item:", {
-      itemName,
-      color,
-      brand,
-      type,
-      isAvailable,
-      price: parseFloat(price),
-      age: parseFloat(age),
-      popularity,
+  async function handleSave() {
+    let image_url = null;
+
+    if (imageFile) {
+      const fileName = `${Date.now()}_${imageFile.name}`;
+      const { error } = await supabase.storage
+        .from('item_images')
+        .upload(fileName, imageFile);
+
+      if (error) {
+        console.error('Image upload failed:', error.message);
+        return;
+      }
+
+      image_url = fileName;
+    }
+
+    const res = await fetch('http://localhost:8000/api/item/additem', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name: itemName,
+        color,
+        brand,
+        type,
+        is_available: isAvailable,
+        price: price ? parseFloat(price) : null,
+        age: age ? parseFloat(age) : null,
+        popularity,
+        tags,
+        material,
+        occasion,
+        image_url,
+      }),
     });
+
+    if (!res.ok) {
+      const err = await res.json();
+      console.error('Failed to save item:', err);
+      return;
+    }
+
+    const newItem = await res.json();
+    console.log('Item saved:', newItem);
   }
 
   function handleCancel() {
@@ -87,15 +125,19 @@ export default function NewItemPage() {
       <div className="bg-[#EFEAE4] shadow-xl rounded-xl h-full w-full flex items-center flex-col gap-y-5 p-5 overflow-y-scroll scrollbar-thin scrollbar-thumb-[#B56311]/80 scrollbar-track-[#E0D0B9]/80">
         <ItemName itemName={itemName} onItemNameChange={setItemName} alwaysShowEdit />
         <div className="w-full p-3 grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
-          <ImageViewAndUpload imageLink="/profile_photo.jpg" objectFit="contain" />
+          <ImageViewAndUpload imageLink="/profile_photo.jpg" objectFit="contain" onFileChange={setImageFile} />
           <div className="flex flex-col gap-y-4">
             <FieldRow label="Type">
-              <input
+              <select
                 className={inputClass}
-                placeholder="e.g. Sweater"
                 value={type}
                 onChange={(e) => setType(e.target.value)}
-              />
+              >
+                <option value="">Select type</option>
+                {["T-Shirt","Long-Sleeve Shirt","Turtleneck","Mid-Sleve Shirt","Sweater","Jacket","Dress","Mini-Dress","Maxi-Dress","Skirts","Cardigans","Hoodies","Hot Pants","Bikini Top","Bikini Bottom","Bikini","Jeans","Shorts","Flip Flops","Sandels","Heels","Underwear","Platforms","Boots","Loafers","Slides","Beanie","Top Hat","Fedora","Cap","Bandana","Glasses","Sunglasses","Coat","Other"].map((t) => (
+                  <option key={t} value={t}>{t}</option>
+                ))}
+              </select>
             </FieldRow>
             <FieldRow label="Brand">
               <input
@@ -113,9 +155,23 @@ export default function NewItemPage() {
                 onChange={(e) => setColor(e.target.value)}
               />
             </FieldRow>
-            <TagList tags={[]} listName="Item Tag(s)" />
-            <TagList tags={[]} listName="Material" />
-            <TagList tags={[]} listName="Occasion" />
+            <TagList tags={[]} listName="Item Tag(s)" onTagsChange={setTags} />
+            <FieldRow label="Material">
+              <select className={inputClass} value={material} onChange={(e) => setMaterial(e.target.value)}>
+                <option value="">Select material</option>
+                {["Cotton","Polyester","Nylon","Cashmer","Silk","Suede","Denim","Corduroy","Linen","Wool","Spandex","Leather","Fur","Faus Fur","Shearling","Rayon","Satin","Velvet","Chiffon","Felt","Poplin","Other"].map((m) => (
+                  <option key={m} value={m}>{m}</option>
+                ))}
+              </select>
+            </FieldRow>
+            <FieldRow label="Occasion">
+              <select className={inputClass} value={occasion} onChange={(e) => setOccasion(e.target.value)}>
+                <option value="">Select occasion</option>
+                {["Formal","Casual","Church","Semi-Formal","Cocktail","Rave","Funeral","Wedding","Maternity","Active","Spring","Summer","Winter","Fall","SBCS","Businesswear","Business Casual","Other"].map((o) => (
+                  <option key={o} value={o}>{o}</option>
+                ))}
+              </select>
+            </FieldRow>
             <FieldRow label="Is Available">
               <Toggle
                 checked={isAvailable}

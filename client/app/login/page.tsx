@@ -1,11 +1,10 @@
 'use client'
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { Nunito } from 'next/font/google'
 import { IoLogoAngular } from 'react-icons/io'
 import { IoEyeOutline, IoEyeOffOutline } from 'react-icons/io5'
-import { supabase } from '../../lib/supabase'
+import { login } from '@/app/auth/actions'
 
 const nunito = Nunito({ subsets: ['latin'] })
 
@@ -22,7 +21,6 @@ function isFieldInvalid(id: string, value: string) {
 }
 
 export default function LoginPage() {
-  const router = useRouter()
   const [formData, setFormData] = useState<Record<string, string>>({})
   const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
@@ -34,16 +32,10 @@ export default function LoginPage() {
 
     setLoading(true)
     setAuthError('')
-    const { error } = await supabase.auth.signInWithPassword({
-      email: formData.email,
-      password: formData.password,
-    })
-    setLoading(false)
-
-    if (error) {
-      setAuthError(error.message)
-    } else {
-      router.push('/profile')
+    const result = await login(formData.email, formData.password)
+    if (result?.error) {
+      setAuthError(result.error)
+      setLoading(false)
     }
   }
 
