@@ -1,5 +1,6 @@
 "use client"
-import React, { useState, useRef } from 'react'
+import React, { useState, useRef, useEffect } from 'react'
+import { createClient } from '@/lib/supabase/client'
 
 interface Entry {
   id: number
@@ -74,13 +75,64 @@ export default function ProfilePage({ searchParams }: any) {
   // Draft state — holds edits while the modal is open, only applied on Save
   const [draft, setDraft] = useState<ProfileData>(profile)
 
+  // The actual File picked for profile pic (separate from the base64 preview in draft)
+  const [profilePicFile, setProfilePicFile] = useState<File | null>(null)
+
+  const supabase = createClient()
+
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (!user) return
+      const username = user.user_metadata?.username ?? user.email ?? 'Username'
+      const profileImageName = user.user_metadata?.profile_image_name as string | undefined
+      let profilePic = ''
+      if (profileImageName) {
+        const { data } = supabase.storage.from('profile_images').getPublicUrl(profileImageName)
+        profilePic = data.publicUrl
+      }
+      setProfile((prev) => ({
+        ...prev,
+        username,
+        handle: `@${username}`,
+        profilePic,
+      }))
+    })
+  }, [])
+
   const openEditModal = () => {
     setDraft(profile)
+    setProfilePicFile(null)
     setShowEditModal(true)
   }
 
-  const saveProfile = () => {
-    setProfile(draft)
+  const saveProfile = async () => {
+    let nextProfile = draft
+
+    if (profilePicFile) {
+      try {
+        const ext = profilePicFile.name.split('.').pop() ?? 'jpg'
+        const filename = `${Date.now()}.${ext}`
+        const { error: uploadError } = await supabase.storage
+          .from('profile_images')
+          .upload(filename, profilePicFile)
+        if (uploadError) throw uploadError
+
+        const { error: metaError } = await supabase.auth.updateUser({
+          data: { profile_image_name: filename },
+        })
+        if (metaError) throw metaError
+
+        const { data } = supabase.storage.from('profile_images').getPublicUrl(filename)
+        nextProfile = { ...draft, profilePic: data.publicUrl }
+      } catch (err) {
+        console.error(err)
+        alert('Profile picture upload failed')
+        return
+      }
+    }
+
+    setProfile(nextProfile)
+    setProfilePicFile(null)
     setShowEditModal(false)
   }
 
@@ -154,6 +206,7 @@ export default function ProfilePage({ searchParams }: any) {
         onChange={(e) => {
           const file = e.target.files?.[0]
           if (!file) return
+          setProfilePicFile(file)
           readFile(file, (url) => setDraft((prev) => ({ ...prev, profilePic: url })))
           e.target.value = ''
         }}

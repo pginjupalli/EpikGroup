@@ -31,7 +31,7 @@ export default function ClosetToggle({items, outfits}: ClosetToggleProps) {
               </div>
             </Link>
           )) : outfits.map((outfit: any, _: any) => (
-            <Link key={outfit.id} href={`/viewoutfit?id=${outfit.id}`} className="bg-white rounded-lg shadow-lg overflow-hidden wrap-break-words">
+            <Link key={outfit.id} href={`/viewoutfit/${outfit.id}`} className="bg-white rounded-lg shadow-lg overflow-hidden wrap-break-words">
               <div className="p-4">
                 <h3 className="text-xl font-bold mb-2">{outfit.name}</h3>
               </div>
