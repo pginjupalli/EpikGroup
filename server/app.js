@@ -48,15 +48,150 @@ app.get('/closet', async (req, res) => {
     });
 
     const formattedOutfits = outfits.data.map(outfit => {
+        let outfitImage = null;
+        if (outfit.image_name) {
+            const { data: publicUrlData } = supabase.storage.from('outfit_images').getPublicUrl(outfit.image_name);
+            outfitImage = publicUrlData.publicUrl;
+        }
         return {
             id: outfit.id,
             name: outfit.name,
             description: outfit.description,
-            image: null,
+            image: outfitImage,
         }
     });
 
     res.status(200).json({item: formattedItems, outfit: formattedOutfits});
+});
+
+
+app.post('/api/outfit', async (req, res) => {
+    try {
+        const { name, description, item_ids, popularity, isAvailable, occasion, image_name } = req.body;
+
+        if (!name || !name.trim()) {
+            return res.status(400).json({ error: 'Outfit name is required' });
+        }
+
+        const insertData = {
+            name: name.trim(),
+            description: description ?? '',
+            item_ids: Array.isArray(item_ids) ? item_ids.map(Number) : [],
+            popularity: popularity || null,
+            isAvailable: isAvailable ?? true,
+        };
+        if (occasion) insertData.occasion = occasion;
+        if (image_name) insertData.image_name = image_name;
+
+        const { data, error } = await supabase
+            .from('Outfits')
+            .insert(insertData)
+            .select()
+            .single();
+
+        if (error) throw error;
+
+        res.status(201).json(data);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+app.get('/api/items', async (req, res) => {
+    try {
+        const { data, error } = await supabase.from('Items').select('*');
+        if (error) throw error;
+
+        const items = data.map(item => {
+            let imageUrl = '';
+            if (item.image_url) {
+                const { data: publicUrlData } = supabase.storage
+                    .from('item_images')
+                    .getPublicUrl(item.image_url);
+                imageUrl = publicUrlData.publicUrl;
+            }
+            return {
+                id: String(item.id),
+                name: item.name,
+                imageUrl,
+                type: item.type ?? 'Other',
+            };
+        });
+
+        res.status(200).json(items);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+app.get('/api/outfit/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        const { data: outfit, error: outfitError } = await supabase
+            .from('Outfits')
+            .select('*')
+            .eq('id', id)
+            .single();
+
+        if (outfitError) {
+            if (outfitError.code === 'PGRST116') {
+                return res.status(404).json({ error: 'Outfit not found' });
+            }
+            throw outfitError;
+        }
+
+        let outfitImage = null;
+        if (outfit.image_name) {
+            const { data: publicUrlData } = supabase.storage
+                .from('outfit_images')
+                .getPublicUrl(outfit.image_name);
+            outfitImage = publicUrlData.publicUrl;
+        }
+
+        let items = [];
+        if (Array.isArray(outfit.item_ids) && outfit.item_ids.length > 0) {
+            const { data: itemRows, error: itemError } = await supabase
+                .from('Items')
+                .select('*')
+                .in('id', outfit.item_ids);
+
+            if (itemError) throw itemError;
+
+            items = itemRows.map(item => {
+                let image = null;
+                if (item.image_url) {
+                    const { data: publicUrlData } = supabase.storage
+                        .from('item_images')
+                        .getPublicUrl(item.image_url);
+                    image = publicUrlData.publicUrl;
+                }
+                return {
+                    id: item.id,
+                    name: item.name,
+                    description: item.description,
+                    image,
+                };
+            });
+        }
+
+        res.status(200).json({
+            outfit: {
+                id: outfit.id,
+                name: outfit.name,
+                description: outfit.description,
+                image: outfitImage,
+                tags: outfit.tags ?? [],
+                isAvailable: outfit.isAvailable,
+                isLiked: outfit.isLiked ?? false,
+                occasion: outfit.occasion,
+                popularity: outfit.popularity,
+            },
+            items,
+        });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
 });
 
 app.post('/api/item/additem', async (req, res) => {

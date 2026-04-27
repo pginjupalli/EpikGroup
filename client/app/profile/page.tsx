@@ -1,5 +1,8 @@
 "use client"
-import React, { useState, useRef } from 'react'
+import React, { useState, useRef, useEffect } from 'react'
+import { createClient } from '@/lib/supabase/client'
+import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 
 interface Entry {
   id: number
@@ -19,23 +22,37 @@ interface ProfileData {
   backgroundImage: string
 }
 
-function EntryGrid({ list, onAdd }: { list: Entry[]; onAdd: () => void }) {
+function EntryGrid({
+  list,
+  onAdd,
+  linkBuilder,
+}: {
+  list: Entry[]
+  onAdd: () => void
+  linkBuilder?: (entry: Entry) => string
+}) {
   return (
     <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3">
-      {list.map((entry) => (
-        <div
-          key={entry.id}
-          className="aspect-square rounded-xl overflow-hidden bg-gray-200 shadow-sm"
-        >
-          {entry.imageUrl && (
-            <img
-              src={entry.imageUrl}
-              alt="entry"
-              className="w-full h-full object-cover"
-            />
-          )}
-        </div>
-      ))}
+      {list.map((entry) => {
+        const card = (
+          <div className="aspect-square rounded-xl overflow-hidden bg-gray-200 shadow-sm">
+            {entry.imageUrl && (
+              <img
+                src={entry.imageUrl}
+                alt="entry"
+                className="w-full h-full object-cover"
+              />
+            )}
+          </div>
+        )
+        return linkBuilder ? (
+          <Link key={entry.id} href={linkBuilder(entry)}>
+            {card}
+          </Link>
+        ) : (
+          <div key={entry.id}>{card}</div>
+        )
+      })}
       <button
         onClick={onAdd}
         className="aspect-square rounded-xl border-2 border-dashed border-[#B0A090]
@@ -50,12 +67,25 @@ function EntryGrid({ list, onAdd }: { list: Entry[]; onAdd: () => void }) {
   )
 }
 
-export default function ProfilePage() {
+export default function ProfilePage({ searchParams }: any) {
+  const router = useRouter()
   const [activeTab, setActiveTab] = useState('outfits')
   const [folders, setFolders] = useState<Folder[]>([])
   const [outfits, setOutfits] = useState<Entry[]>([])
   const [items, setItems] = useState<Entry[]>([])
   const [collections, setCollections] = useState<Entry[]>([])
+  const params = React.use(searchParams);
+  const id = (params as any).id;
+
+  useEffect(() => {
+    fetch('http://localhost:8000/closet')
+      .then((r) => r.json())
+      .then(({ item, outfit }) => {
+        setItems(item.map((i: any) => ({ id: Number(i.id), imageUrl: i.image ?? '' })))
+        setOutfits(outfit.map((o: any) => ({ id: Number(o.id), imageUrl: o.image ?? '' })))
+      })
+      .catch(console.error)
+  }, [])
 
   // Profile data state
   const [profile, setProfile] = useState<ProfileData>({
@@ -72,13 +102,64 @@ export default function ProfilePage() {
   // Draft state — holds edits while the modal is open, only applied on Save
   const [draft, setDraft] = useState<ProfileData>(profile)
 
+  // The actual File picked for profile pic (separate from the base64 preview in draft)
+  const [profilePicFile, setProfilePicFile] = useState<File | null>(null)
+
+  const supabase = createClient()
+
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (!user) return
+      const username = user.user_metadata?.username ?? user.email ?? 'Username'
+      const profileImageName = user.user_metadata?.profile_image_name as string | undefined
+      let profilePic = ''
+      if (profileImageName) {
+        const { data } = supabase.storage.from('profile_images').getPublicUrl(profileImageName)
+        profilePic = data.publicUrl
+      }
+      setProfile((prev) => ({
+        ...prev,
+        username,
+        handle: `@${username}`,
+        profilePic,
+      }))
+    })
+  }, [])
+
   const openEditModal = () => {
     setDraft(profile)
+    setProfilePicFile(null)
     setShowEditModal(true)
   }
 
-  const saveProfile = () => {
-    setProfile(draft)
+  const saveProfile = async () => {
+    let nextProfile = draft
+
+    if (profilePicFile) {
+      try {
+        const ext = profilePicFile.name.split('.').pop() ?? 'jpg'
+        const filename = `${Date.now()}.${ext}`
+        const { error: uploadError } = await supabase.storage
+          .from('profile_images')
+          .upload(filename, profilePicFile)
+        if (uploadError) throw uploadError
+
+        const { error: metaError } = await supabase.auth.updateUser({
+          data: { profile_image_name: filename },
+        })
+        if (metaError) throw metaError
+
+        const { data } = supabase.storage.from('profile_images').getPublicUrl(filename)
+        nextProfile = { ...draft, profilePic: data.publicUrl }
+      } catch (err) {
+        console.error(err)
+        alert('Profile picture upload failed')
+        return
+      }
+    }
+
+    setProfile(nextProfile)
+    setProfilePicFile(null)
     setShowEditModal(false)
   }
 
@@ -109,8 +190,8 @@ export default function ProfilePage() {
     e.target.value = ''
   }
 
-  const handleAddOutfit     = () => openFilePicker((imageUrl) => setOutfits((prev)      => [...prev, { id: Date.now(), imageUrl }]))
-  const handleAddItem       = () => openFilePicker((imageUrl) => setItems((prev)        => [...prev, { id: Date.now(), imageUrl }]))
+  const handleAddOutfit     = () => router.push('/newoutfit')
+  const handleAddItem       = () => router.push('/newitem')
   const handleAddCollection = () => openFilePicker((imageUrl) => setCollections((prev)  => [...prev, { id: Date.now(), imageUrl }]))
 
   const handleAddToFolder = (folderName: string) =>
@@ -152,6 +233,7 @@ export default function ProfilePage() {
         onChange={(e) => {
           const file = e.target.files?.[0]
           if (!file) return
+          setProfilePicFile(file)
           readFile(file, (url) => setDraft((prev) => ({ ...prev, profilePic: url })))
           e.target.value = ''
         }}
@@ -204,10 +286,10 @@ export default function ProfilePage() {
             {/* Following and Followers */}
             <div className="flex gap-6 text-gray-600">
               <div>
-                <span className="font-semibold">123</span> Following
+                <span className="font-semibold">0</span> Following
               </div>
               <div>
-                <span className="ml-4 font-semibold">456</span> Followers
+                <span className="ml-4 font-semibold">0</span> Followers
               </div>
             </div>
           </div>
@@ -291,7 +373,11 @@ export default function ProfilePage() {
           {activeTab === 'outfits' && (
             <div>
               <h3 className="text-xl font-bold mb-4">My Outfits</h3>
-              <EntryGrid list={outfits} onAdd={handleAddOutfit} />
+              <EntryGrid
+                list={outfits}
+                onAdd={handleAddOutfit}
+                linkBuilder={(entry) => `/viewoutfit/${entry.id}`}
+              />
             </div>
           )}
 
